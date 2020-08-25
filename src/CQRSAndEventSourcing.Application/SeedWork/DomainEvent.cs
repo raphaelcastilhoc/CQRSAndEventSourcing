@@ -2,7 +2,7 @@
 
 namespace CQRSAndEventSourcing.Application.SeedWork
 {
-    public class DomainEvent
+    public abstract class DomainEvent
     {
         public DomainEvent()
         {

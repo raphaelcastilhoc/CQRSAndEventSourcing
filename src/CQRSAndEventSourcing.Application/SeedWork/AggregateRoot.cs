@@ -7,8 +7,21 @@ namespace CQRSAndEventSourcing.Application.SeedWork
     {
         private List<DomainEvent> _domainEvents;
 
-        public AggregateRoot(Guid id) : base(id)
+        public AggregateRoot(Guid id)
         {
+            Id = id;
+        }
+
+        public AggregateRoot(IEnumerable<DomainEvent> domainEvents)
+        {
+            if (domainEvents == null)
+                return;
+
+            foreach (var domainEvent in domainEvents)
+            {
+                ApplyDomainEvent(domainEvent);
+                Version++;
+            }
         }
 
         public short Version { get; }
@@ -20,5 +33,7 @@ namespace CQRSAndEventSourcing.Application.SeedWork
             _domainEvents = _domainEvents ?? new List<DomainEvent>();
             _domainEvents.Add(domainEvent);
         }
+
+        private void ApplyDomainEvent(DomainEvent domainEvent) => ((dynamic)this).On((dynamic)domainEvent);
     }
 }

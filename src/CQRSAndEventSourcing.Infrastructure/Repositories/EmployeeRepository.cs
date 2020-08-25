@@ -16,9 +16,8 @@ namespace CQRSAndEventSourcing.Infrastructure.Repositories
 
         public async Task<Employee> GetAsync(Guid id)
         {
-            //await _eventStore.SaveAsync(employee);
-
-            return new Employee("test", 1);
+            var domainEvents = await _eventStore.GetAsync(id);
+            return new Employee(domainEvents);
         }
 
         public async Task SaveAsync(Employee employee)

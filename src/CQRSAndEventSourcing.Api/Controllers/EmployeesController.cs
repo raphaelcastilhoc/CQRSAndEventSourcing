@@ -25,5 +25,14 @@ namespace CQRSAndEventSourcing.Api.Controllers
 
             return Ok();
         }
+
+        [HttpPatch]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> UpdateSalary(UpdateEmployeeSalaryCommand command)
+        {
+            await _mediator.Send(command);
+
+            return Ok();
+        }
     }
 }

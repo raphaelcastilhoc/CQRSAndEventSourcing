@@ -3,7 +3,7 @@ using System;
 
 namespace CQRSAndEventSourcing.Application.Commands
 {
-    public class UpdateSalaryEmployeeCommand : IRequest
+    public class UpdateEmployeeSalaryCommand : IRequest
     {
         public Guid Id { get; set; }
 

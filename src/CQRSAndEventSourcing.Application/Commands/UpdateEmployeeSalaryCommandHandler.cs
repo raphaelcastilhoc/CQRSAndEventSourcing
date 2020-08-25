@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 
 namespace CQRSAndEventSourcing.Application.Commands
 {
-    public class UpdateSalaryEmployeeCommandHandler : IRequestHandler<UpdateSalaryEmployeeCommand>
+    public class UpdateEmployeeSalaryCommandHandler : IRequestHandler<UpdateEmployeeSalaryCommand>
     {
         private IEmployeeRepository _employeeRepository;
 
-        public UpdateSalaryEmployeeCommandHandler(IEmployeeRepository employeeRepository)
+        public UpdateEmployeeSalaryCommandHandler(IEmployeeRepository employeeRepository)
         {
             _employeeRepository = employeeRepository;
         }
 
-        public async Task<Unit> Handle(UpdateSalaryEmployeeCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateEmployeeSalaryCommand request, CancellationToken cancellationToken)
         {
             var employee = await _employeeRepository.GetAsync(request.Id);
             employee.UpdateSalary(request.Salary);
