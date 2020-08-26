@@ -19,7 +19,7 @@ namespace CQRSAndEventSourcing.Application.Commands
             var employee = await _employeeRepository.GetAsync(request.Id);
             employee.UpdateSalary(request.Salary);
 
-            await _employeeRepository.SaveAsync(employee);
+            await _employeeRepository.UpdateAsync(employee);
 
             return Unit.Value;
         }

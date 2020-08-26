@@ -20,9 +20,14 @@ namespace CQRSAndEventSourcing.Infrastructure.Repositories
             return new Employee(domainEvents);
         }
 
-        public async Task SaveAsync(Employee employee)
+        public async Task AddAsync(Employee employee)
         {
             await _eventStore.SaveAsync(employee);
+        }
+
+        public async Task UpdateAsync(Employee employee)
+        {
+            await _eventStore.SaveAsync(employee, false);
         }
     }
 }

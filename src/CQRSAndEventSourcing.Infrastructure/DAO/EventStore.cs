@@ -39,12 +39,30 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
             return domainEvent;
         }
 
-        public async Task SaveAsync(AggregateRoot aggregateRoot)
+        public async Task SaveAsync(AggregateRoot aggregateRoot, bool isCreationEvent = false)
         {
+            await CheckEventVersion(aggregateRoot, isCreationEvent);
+
             foreach (var @event in aggregateRoot.DomainEvents)
             {
                 var eventDto = new EventDto(aggregateRoot, @event);
                 await _events.InsertOneAsync(eventDto);
+            }
+        }
+
+        private async Task CheckEventVersion(AggregateRoot aggregateRoot, bool isCreationEvent)
+        {
+            if (!isCreationEvent)
+            {
+                var lastEvent = await _events
+                    .Find(x => x.AggregateId == aggregateRoot.Id.ToString())
+                    .SortByDescending(x => x.Version)
+                    .FirstOrDefaultAsync();
+
+                if (aggregateRoot.Version < lastEvent.Version)
+                {
+                    throw new InvalidOperationException("Event version is obsolete.");
+                }
             }
         }
 

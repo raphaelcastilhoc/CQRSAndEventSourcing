@@ -7,6 +7,8 @@ namespace CQRSAndEventSourcing.Application.Aggregates.EmployeeAggregate
     {
         Task<Employee> GetAsync(Guid id);
 
-        Task SaveAsync(Employee employee);
+        Task AddAsync(Employee employee);
+
+        Task UpdateAsync(Employee employee);
     }
 }

@@ -17,7 +17,7 @@ namespace CQRSAndEventSourcing.Application.Commands
         public async Task<Unit> Handle(AddEmployeeCommand request, CancellationToken cancellationToken)
         {
             var employee = new Employee(request.Name, request.Salary);
-            await _employeeRepository.SaveAsync(employee);
+            await _employeeRepository.AddAsync(employee);
 
             return Unit.Value;
         }

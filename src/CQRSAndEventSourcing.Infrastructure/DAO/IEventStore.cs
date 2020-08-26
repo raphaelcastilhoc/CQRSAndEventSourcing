@@ -9,6 +9,6 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
     {
         Task<IEnumerable<DomainEvent>> GetAsync(Guid aggregateId);
 
-        Task SaveAsync(AggregateRoot agregateRoot);
+        Task SaveAsync(AggregateRoot agregateRoot, bool isCreationEvent = true);
     }
 }
