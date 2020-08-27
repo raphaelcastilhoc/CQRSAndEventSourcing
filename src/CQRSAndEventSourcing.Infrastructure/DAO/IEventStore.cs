@@ -7,9 +7,9 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
 {
     public interface IEventStore
     {
-        Task<IEnumerable<DomainEvent>> GetAsync(Guid aggregateId, short? startVersion = null);
+        Task<IEnumerable<DomainEvent>> GetAsync(Guid aggregateId);
 
-        Task<AggregateRoot> GetLastSnapshotAsync(Guid aggregateId);
+        Task<T> GetLastSnapshotAsync<T>(Guid aggregateId) where T : AggregateRoot;
 
         Task SaveAsync(AggregateRoot agregateRoot, bool isCreationEvent = true);
     }
