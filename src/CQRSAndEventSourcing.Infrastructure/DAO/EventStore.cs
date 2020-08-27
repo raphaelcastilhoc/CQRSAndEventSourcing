@@ -12,8 +12,6 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
     {
         private readonly IMongoCollection<EventDto> _events;
 
-        private readonly IMongoCollection<EventDto> _snaphosts;
-
         private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.All,
@@ -23,7 +21,6 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
         public EventStore(IMongoDatabase database)
         {
             _events = database.GetCollection<EventDto>("events");
-            _snaphosts = database.GetCollection<EventDto>("snapshots");
         }
 
         public async Task<IEnumerable<DomainEvent>> GetAsync(Guid aggregateId)
@@ -44,21 +41,16 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
 
         public async Task SaveAsync(AggregateRoot aggregateRoot, bool isCreationEvent = false)
         {
-            await ValidateEventVersion(aggregateRoot, isCreationEvent);
+            await CheckEventVersion(aggregateRoot, isCreationEvent);
 
             foreach (var @event in aggregateRoot.DomainEvents)
             {
                 var eventDto = new EventDto(aggregateRoot, @event);
                 await _events.InsertOneAsync(eventDto);
-
-                if (ShouldTakeSnapshot(aggregateRoot))
-                {
-                    await TakeSnapshot(aggregateRoot);
-                }
             }
         }
 
-        private async Task ValidateEventVersion(AggregateRoot aggregateRoot, bool isCreationEvent)
+        private async Task CheckEventVersion(AggregateRoot aggregateRoot, bool isCreationEvent)
         {
             if (!isCreationEvent)
             {
@@ -74,17 +66,6 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
             }
         }
 
-        private bool ShouldTakeSnapshot(AggregateRoot aggregateRoot)
-        {
-            return aggregateRoot.Version % 10 == 0;
-        }
-
-        private async Task TakeSnapshot(AggregateRoot aggregateRoot)
-        {
-            var snapshot = new EventDto(aggregateRoot);
-            await _snaphosts.InsertOneAsync(snapshot);
-        }
-
         private class EventDto
         {
             private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings()
@@ -98,14 +79,6 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
                 AggregateId = aggregateRoot.Id.ToString();
                 Data = JsonConvert.SerializeObject(@event, Formatting.Indented, _jsonSerializerSettings);
                 CreatedAt = @event.CreatedAt;
-                Version = aggregateRoot.Version + 1;
-            }
-
-            public EventDto(AggregateRoot aggregateRoot)
-            {
-                AggregateId = aggregateRoot.Id.ToString();
-                Data = JsonConvert.SerializeObject(aggregateRoot, Formatting.Indented, _jsonSerializerSettings);
-                CreatedAt = DateTime.Now;
                 Version = aggregateRoot.Version + 1;
             }
 
