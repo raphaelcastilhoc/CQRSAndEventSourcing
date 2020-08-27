@@ -14,6 +14,9 @@ namespace CQRSAndEventSourcing.Application.SeedWork
 
         public AggregateRoot(IEnumerable<DomainEvent> domainEvents)
         {
+            if (domainEvents == null)
+                return;
+
             ApplyDomainEvents(domainEvents);
             Version++;
         }
@@ -30,9 +33,6 @@ namespace CQRSAndEventSourcing.Application.SeedWork
 
         public void ApplyDomainEvents(IEnumerable<DomainEvent> domainEvents)
         {
-            if (domainEvents == null)
-                return;
-
             foreach (var domainEvent in domainEvents)
             {
                 ((dynamic)this).On((dynamic)domainEvent);

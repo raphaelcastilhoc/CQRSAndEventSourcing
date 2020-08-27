@@ -26,9 +26,13 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
             _snapshots = database.GetCollection<EventDto>("snapshots");
         }
 
-        public async Task<IEnumerable<DomainEvent>> GetAsync(Guid aggregateId)
+        public async Task<IEnumerable<DomainEvent>> GetAsync(Guid aggregateId, short? startVersion = null)
         {
-            var events = await _events.Find(x => x.AggregateId == aggregateId.ToString()).ToListAsync();
+            var events = await _events
+                .Find(x => x.AggregateId == aggregateId.ToString() &&
+                startVersion.HasValue ? x.Version > startVersion : true)
+                .ToListAsync();
+
             var domainEvents = events.Select(TransformEvent);
 
             return domainEvents;
@@ -42,28 +46,15 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
             return domainEvent;
         }
 
-        public async Task<T> GetLastSnapshotAsync<T>(Guid aggregateId) where T : AggregateRoot
+        public async Task<AggregateRoot> GetLastSnapshotAsync(Guid aggregateId)
         {
             var lastSnapshot = await _snapshots
                 .Find(x => x.AggregateId == aggregateId.ToString())
                 .SortByDescending(x => x.CreatedAt)
                 .FirstOrDefaultAsync();
 
-            if(lastSnapshot == null)
-            {
-                return null;
-            }
-
             var deserializedObject = JsonConvert.DeserializeObject(lastSnapshot.Data, _jsonSerializerSettings);
-            var aggregateRoot = deserializedObject as T;
-
-            var lastEvents = await _events
-                .Find(x => x.AggregateId == aggregateId.ToString() && x.Version > aggregateRoot.Version)
-                .ToListAsync();
-
-            var domainEvents = lastEvents.Select(TransformEvent);
-
-            aggregateRoot.ApplyDomainEvents(domainEvents);
+            var aggregateRoot = deserializedObject as AggregateRoot;
 
             return aggregateRoot;
         }
