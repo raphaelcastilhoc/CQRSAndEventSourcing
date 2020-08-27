@@ -16,20 +16,8 @@ namespace CQRSAndEventSourcing.Infrastructure.Repositories
 
         public async Task<Employee> GetAsync(Guid id)
         {
-            var lastSnapshot = await _eventStore.GetLastSnapshotAsync(id);
-            if(lastSnapshot != null)
-            {
-                var employee = lastSnapshot as Employee;
-                var domainEvents = await _eventStore.GetAsync(id, employee.Version);
-                employee.ApplyDomainEvents(domainEvents);
-
-                return employee;
-            }
-            else
-            {
-                var domainEvents = await _eventStore.GetAsync(id);
-                return new Employee(domainEvents);
-            }
+            var domainEvents = await _eventStore.GetAsync(id);
+            return new Employee(domainEvents);
         }
 
         public async Task AddAsync(Employee employee)

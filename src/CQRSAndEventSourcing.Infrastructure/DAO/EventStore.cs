@@ -12,7 +12,7 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
     {
         private readonly IMongoCollection<EventDto> _events;
 
-        private readonly IMongoCollection<EventDto> _snapshots;
+        private readonly IMongoCollection<EventDto> _snaphosts;
 
         private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings()
         {
@@ -23,40 +23,23 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
         public EventStore(IMongoDatabase database)
         {
             _events = database.GetCollection<EventDto>("events");
-            _snapshots = database.GetCollection<EventDto>("snapshots");
+            _snaphosts = database.GetCollection<EventDto>("snapshots");
         }
 
-        public async Task<IEnumerable<DomainEvent>> GetAsync(Guid aggregateId, short? startVersion = null)
+        public async Task<IEnumerable<DomainEvent>> GetAsync(Guid aggregateId)
         {
-            var events = await _events
-                .Find(x => x.AggregateId == aggregateId.ToString() &&
-                startVersion.HasValue ? x.Version > startVersion : true)
-                .ToListAsync();
-
+            var events = await _events.Find(x => x.AggregateId == aggregateId.ToString()).ToListAsync();
             var domainEvents = events.Select(TransformEvent);
 
             return domainEvents;
         }
 
-        private DomainEvent TransformEvent(EventDto @event)
+        private DomainEvent TransformEvent(EventDto eventDto)
         {
-            var deserializedObject = JsonConvert.DeserializeObject(@event.Data, _jsonSerializerSettings);
+            var deserializedObject = JsonConvert.DeserializeObject(eventDto.Data, _jsonSerializerSettings);
             var domainEvent = deserializedObject as DomainEvent;
 
             return domainEvent;
-        }
-
-        public async Task<AggregateRoot> GetLastSnapshotAsync(Guid aggregateId)
-        {
-            var lastSnapshot = await _snapshots
-                .Find(x => x.AggregateId == aggregateId.ToString())
-                .SortByDescending(x => x.CreatedAt)
-                .FirstOrDefaultAsync();
-
-            var deserializedObject = JsonConvert.DeserializeObject(lastSnapshot.Data, _jsonSerializerSettings);
-            var aggregateRoot = deserializedObject as AggregateRoot;
-
-            return aggregateRoot;
         }
 
         public async Task SaveAsync(AggregateRoot aggregateRoot, bool isCreationEvent = false)
@@ -99,7 +82,7 @@ namespace CQRSAndEventSourcing.Infrastructure.DAO
         private async Task TakeSnapshot(AggregateRoot aggregateRoot)
         {
             var snapshot = new EventDto(aggregateRoot);
-            await _snapshots.InsertOneAsync(snapshot);
+            await _snaphosts.InsertOneAsync(snapshot);
         }
 
         private class EventDto

@@ -17,11 +17,14 @@ namespace CQRSAndEventSourcing.Application.SeedWork
             if (domainEvents == null)
                 return;
 
-            ApplyDomainEvents(domainEvents);
-            Version++;
+            foreach (var domainEvent in domainEvents)
+            {
+                ApplyDomainEvent(domainEvent);
+                Version++;
+            }
         }
 
-        public short Version { get; private set; }
+        public short Version { get; }
 
         public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents;
 
@@ -31,15 +34,6 @@ namespace CQRSAndEventSourcing.Application.SeedWork
             _domainEvents.Add(domainEvent);
         }
 
-        public void ApplyDomainEvents(IEnumerable<DomainEvent> domainEvents)
-        {
-            foreach (var domainEvent in domainEvents)
-            {
-                ((dynamic)this).On((dynamic)domainEvent);
-                Version++;
-            }
-        }
-
-        //private void ApplyDomainEvent(DomainEvent domainEvent) => ((dynamic)this).On((dynamic)domainEvent);
+        private void ApplyDomainEvent(DomainEvent domainEvent) => ((dynamic)this).On((dynamic)domainEvent);
     }
 }
