@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CQRSAndEventSourcing.Application.SeedWork
 {
-    public class AggregateRoot : Entity
+    public abstract class AggregateRoot : Entity
     {
         private List<DomainEvent> _domainEvents;
 
