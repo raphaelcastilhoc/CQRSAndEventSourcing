@@ -9,3 +9,8 @@ jobs:
         
       - name: Run CodeReader
         uses: raphaelcastilhoc/ActionFileReader/actions@main
+
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: sarifSample.sarif
