@@ -8,4 +8,4 @@ jobs:
       - uses: actions/checkout@v3
         
       - name: Run CodeReader
-        uses: raphaelcastilhoc/.github/ActionFileReader/actions
+        uses: raphaelcastilhoc/ActionFileReader/.github/actions
