@@ -1,0 +1,11 @@
+name: Example workflow
+on: push
+jobs:
+  security:
+    runs-on: ubuntu-latest
+        
+    steps:
+      - uses: actions/checkout@v3
+        
+      - name: Run CodeReader
+        uses: raphaelcastilhoc/ActionFileReader/actions/action@main
