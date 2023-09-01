@@ -7,8 +7,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Run CLI
-        uses: raphaelcastilhoc/CLI/actions@main
+      #- name: Run CLI
+      #  uses: raphaelcastilhoc/CLI/actions@main
+
+      - name: Pull Docker image
+        run: docker pull raphaelcastilhoc/cli:latest
+
+      - name: Run Docker container CLI
+        run: docker run --name raphaelcastilhoc-cli raphaelcastilhoc/cli help
         
       - name: Run CodeReader
         uses: raphaelcastilhoc/ActionFileReader/actions@main
